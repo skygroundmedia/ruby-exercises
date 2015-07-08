@@ -15,4 +15,3 @@ $:.unshift( File.join(APP_ROOT, 'lib') )
 require 'feed'
 
 feed = Feed.new
-
