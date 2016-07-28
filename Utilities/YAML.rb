@@ -1,20 +1,30 @@
-#A. Importing the YAML Library
 require 'yaml'
-names = %w[chris sandy josie billy suzie]
 
-#Example 1 : Converting an array into YAML using: to_yaml
-yaml_example1 = names.to_yaml
-puts yaml_example1
-
-#Example 2: Converting an array into YAML using: dump()
-yaml_example2 = YAML::dump(names)
-puts yaml_example2
-
-#Example 3: Loading YAML back into an array using: load()
-array_example = YAML::load(yamloutput2)
-puts array_example
-
-#How to iterate through an array 
-array_example.length.times do |i|
-  puts i.to_s + " " + array_example[i]
+class Util
+	@@names = %w[chris sandy josie billy suzie]
+	
+	def to_yaml
+		@@names.to_yaml
+	end
+	
+	def to_yaml_through_dump
+		YAML::dump(@@names)
+	end
+	
+	def to_array
+		YAML::load( to_yaml_through_dump )
+	end
+	
+	def array_iterate
+		to_array.length.times do |i|
+		  puts i.to_s + " " + to_array[i]
+		end
+	end
 end
+
+util = Util.new
+
+puts util.to_yaml
+puts util.to_yaml_through_dump
+puts util.to_array
+puts util.array_iterate
