@@ -3,29 +3,46 @@
 #  sudo gem install ezcrypto
 #
 
-############################
-#1. Encryption
-############################
-#A. Import the Libraries
-require 'rubygems'
 require 'ezcrypto'
 
-#B. Create AES 128-bit Key
-# => 1. Make a strong alpha-numeric password longer then 8-bytes
-# => 2. Create a Salt or two-form hash
-@key = EzCrypto::Key.with_password("alph@_num3r1c", "salted hash")
+class CryptoUtil
+	# Make a strong alpha-numeric password longer then 8-bytes
+	@@alphanum_password = "alph@_num3r1c"
+	# Create a Salt or two-form hash
+	@@salt = "salted hash"		
 
-#C. Encrypt the Data
-@encrypted = @key.encrypt "$up3r_p@$$w0rd"
+	def initialize
+	end
 
-puts "This is your encrypted data \n" + @encrypted
+	def random_key
+		EzCrypto::Key.generate
+	end
 
-############################
-#2. Decryption
-############################
-#A. Establish the Key like you did in Step A above
+	#AES 128-bit Key
+	def encrypt(password)
+		# Encrypt the password
+		encrypted = key.encrypt(password)
+	end
 
-#B. Decrypt the Original Message
-@decrypted = @key.decrypt @encrypted
+	def decrypt(encrypted)
+		#B. Decrypt the Original Message
+		decrypted = key.decrypt(encrypted)
+	end
+	
+	def key
+		EzCrypto::Key.with_password(@@alphanum_password, @@salt)
+	end
+end
 
-puts "This is the decrypted original data \n" + @decrypted
+def show_message(message)
+	puts %Q{#{message} \n\n}
+end
+
+
+crypto_util = CryptoUtil.new
+
+encrypted = crypto_util.encrypt("$up3r_p@$$w0rd")
+show_message("This is your encrypted password: " + encrypted)
+
+decrypted = crypto_util.decrypt(encrypted)
+show_message( "This is your decrypted password: " + decrypted)
