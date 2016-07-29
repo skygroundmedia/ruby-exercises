@@ -1,16 +1,19 @@
 APP_ROOT = File.dirname(__FILE__)
-
-# require "#{APP_ROOT}/lib/guide"
-# require File.join(APP_ROOT, 'lib', 'guide.rb')
-# require File.join(APP_ROOT, 'lib', 'guide')
-
 $:.unshift( File.join(APP_ROOT, 'lib') )
 
-require 'geo'
+file = File.join(APP_ROOT, 'data', "geo_data.csv")
 
-csv = File.join(APP_ROOT, 'data', "geo_data.csv")
-geo = Geo.new
-rows = geo.read_csv(csv)
+require 'ExcelsiorUtil'
+ecsv = ExcelsiorUtil.new
+rows = ecsv.read(file)
+puts %Q{ #{rows.last} }
 
-#Grab the first rown in the array and present it as a Hash
-puts %Q{ #{rows.first} }
+
+puts %Q{ \n\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n }
+
+
+require 'CSVUtil'
+csv = CSVUtil.new
+rows = csv.read(file)
+puts %Q{ #{rows.first.inspect} \n\n }
+puts %Q{ :zip_code #{rows.first[:zip_code]} }
