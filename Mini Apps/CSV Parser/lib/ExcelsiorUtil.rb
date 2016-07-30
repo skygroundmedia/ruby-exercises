@@ -53,8 +53,7 @@ class Hash
       result
     }
   end
-end
- 
+end 
  
 # Clean up the string
 class String
@@ -62,4 +61,3 @@ class String
     self.gsub(' ', '_').strip.downcase
 	end
 end
-

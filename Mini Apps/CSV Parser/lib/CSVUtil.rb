@@ -7,7 +7,6 @@
 require 'csv'
 
 class CSVUtil
-	
 	def read(file)
 		CSV.read(file, headers: true, header_converters: :symbol, skip_blanks: true)		
 	end
@@ -21,4 +20,3 @@ class CSVUtil
 		end				
 	end
 end
-
