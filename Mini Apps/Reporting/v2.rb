@@ -29,11 +29,20 @@ class Reporting
 		data.each_pair { |key,value| puts %Q{ #{key}: #{value.count} }}
 		
 		
-		puts %Q{\n\nMethod #2 ––––––––––––––––––––––––––\n\n}
+		puts %Q{\n\nMethod #2 –Sorted–––––––––––––––––––\n\n}
 		count_by_timezone = data.map do |timezone,download|
 			[timezone, download.size]
-		end				
-		puts %Q{\n\n #{count_by_timezone} \n\n}
+		end
+		
+		#Sort the data. 
+		#count_by_timezone = sort_by_longhand(count_by_timezone)
+		count_by_timezone = sort_by_shorthand(count_by_timezone, :last).reverse
+		
+		count_by_timezone.map do |pair|
+			puts pair.join(": ")
+		end
+		
+		#puts %Q{\n\n #{count_by_timezone} \n\n}
 		
 		
 		puts %Q{\n\nMethod #3 ––––––––––––––––––––––––––\n\n}
@@ -42,6 +51,17 @@ class Reporting
 		puts %Q{ The first key is "#{keys.first}" }
 		puts %Q{ "#{keys.first}" has #{data[keys.first].count} downloads  }
 	end
+	
+	def sort_by_longhand(arr)
+		arr.sort_by do |pair|
+					pair.first
+		end
+		return arr
+	end
+	
+	def sort_by_shorthand(arr, symbol)
+		arr.sort_by(&symbol)
+	end	
 end
 
 Reporting.new
