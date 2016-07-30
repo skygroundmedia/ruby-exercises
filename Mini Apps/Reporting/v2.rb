@@ -18,8 +18,9 @@ class Reporting
   def group_data(json)
 		#This will group the data by key
 		downloads_by_timezone = json.group_by do |timeZone|
-			timeZone["timeZone"]
-		end		
+															timeZone["timeZone"]
+														end
+														
 		publish_data(downloads_by_timezone)
   end  
 	
@@ -30,20 +31,22 @@ class Reporting
 		
 		
 		puts %Q{\n\nMethod #2 –Sorted–––––––––––––––––––\n\n}
-		count_by_timezone = data.map do |timezone,download|
-			[timezone, download.size]
-		end
 		
-		#Sort the data. 
+		#Transform data
+		count_by_timezone = data.map do |timezone,download|
+													[timezone, download.size]
+												end.sort_by(&:last).reverse
+		
+		#Sort the data
 		#count_by_timezone = sort_by_longhand(count_by_timezone)
 		count_by_timezone = sort_by_shorthand(count_by_timezone, :last).reverse
 		
+		#Present Data
 		count_by_timezone.map do |pair|
 			puts pair.join(": ")
 		end
 		
-		#puts %Q{\n\n #{count_by_timezone} \n\n}
-		
+		#puts %Q{\n\n #{count_by_timezone} \n\n}		
 		
 		puts %Q{\n\nMethod #3 ––––––––––––––––––––––––––\n\n}
 		keys = data.keys
@@ -56,7 +59,6 @@ class Reporting
 		arr.sort_by do |pair|
 					pair.first
 		end
-		return arr
 	end
 	
 	def sort_by_shorthand(arr, symbol)
