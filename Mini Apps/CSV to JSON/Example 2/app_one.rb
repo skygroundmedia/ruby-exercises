@@ -64,10 +64,17 @@ class App
 	end
 end
 
+def init(csv, json)
+	app  = App.new(csv, json)
+	results = app.parse
+	app.save(results)
+end
+
 csv  = "App Background Photos.csv"
 json = %Q{credits_#{Date.today.to_s}_1.json}
+init(csv, json)
 
+csv  = "App Background Photos 2.csv"
+json = %Q{credits_#{Date.today.to_s}_2.json}
+init(csv, json)
 
-app  = App.new(csv, json)
-results = app.parse
-app.save(results)
