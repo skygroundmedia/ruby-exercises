@@ -3,6 +3,8 @@ $:.unshift(File.join(APP_ROOT, 'lib'))
 
 @file = File.join(APP_ROOT, 'data', "geo_data.csv")
 
+# Option 1 is all about speed
+# Excelsior is super fast
 def option_one
 	require 'ExcelsiorUtil'
 	ecsv = ExcelsiorUtil.new
@@ -10,19 +12,8 @@ def option_one
 	puts %Q{ #{rows.last} }
 end
 
-
-module Enumerable
-	#Determine if an existing item should be within a subset
-	def subset
-		collection = []
-		each do |item|
-			collection << item if yield(item)
-		end
-		puts collection.size
-		puts collection[3314].inspect
-		collection
-	end
-end	
+# Option 2 is all about elegance
+# It's not as fast but that's totally fine
 
 def option_two	
 	require 'CSVUtil'
@@ -54,6 +45,9 @@ def option_two
 end
 
 
+#
+# This is simply designed for testing
+#
 def run_tests
 	exec("ruby ./tests/location_test.rb")
 end
@@ -65,4 +59,6 @@ end
 # ruby init.rb option_one
 # ruby init.rb option_two
 #eval(ARGV.first)
+
+
 option_two
