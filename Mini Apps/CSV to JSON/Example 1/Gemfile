@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem 'activesupport', '4.1.0'
+gem 'activesupport-json_encoder'
+gem 'neatjson', ' 0.1'
+gem 'timecode', '1.1.2'
+gem 'excelsior', '0.1.0'

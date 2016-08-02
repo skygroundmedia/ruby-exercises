@@ -1,32 +1,30 @@
-=begin
-Title: Playlist creator CSV to JSON
-Date Modified: 02/28/12
+# Title: Playlist creator CSV to JSON
+# Date Modified: 02/28/12
+# 
+# Description: 
+# SoundSNips will have one master JSON file highlighting all the playlists and their associations [playlist name, mp3 src file, album art, etc]
 
-Description: 
-SoundSNips will have one master JSON file highlighting all the playlists and their associations [playlist name, mp3 src file, album art, etc]
-=end
+
+DATA_DIR = Pathname.new(File.join(APP_ROOT, 'output'))
 
 require 'date'
-#require 'json'
-require 'rubygems'
-#sudo gem install excelsior
-#sudo gem update excelsior
 require 'excelsior'
-#sudo gem install timecode
-#require 'Timecode'
-require 'support/timecode_extend'
-require 'support/string_extend'
+require 'neatjson'
 
-require 'playlist'
-require 'track'
-require 'soundsnip'
+require_relative 'excelsior_util'
 
-class Feed
-  
+class App
+	attr_reader   :input_file
+	attr_reader   :playlist_categories
+
+	class Config
+	  def self.dir
+	    Pathname.new(File.join(APP_ROOT, 'data'))
+	  end
+	end
+
+=begin
   class Config
-    @@output_dir = "./output/"
-    def self.output_dir_json; @@output_dir + "json/"; end
-    def self.output_dir_csv;  @@output_dir + "csv/";  end
     
     #Server URL Paths#####################################################
     #Don't worry, in track.rb, I automatically switch out "ios" for "android"
@@ -84,41 +82,48 @@ class Feed
                       "composer_last" => 4, "title" => 5, "performer" => 6, "artwork_large" =>  10 }
     def self.column_index; @@column_index; end
   end
+=end
     
-  def initialize(path=nil)
-    #Create the Master Playlist File Name
-    date = Date.today.to_s
-    file_name = Feed::Config.output_dir_json + "playlist" + "-" + date.to_s + ".json"    
-    output = File.new( file_name, "w")
-    
-    #Starting JSON Array
-    output.puts %Q{[\n }    
-    
-    #Master JSON file known as "playlist.json"
-    Feed::Config.categories.each_with_index do |category, index|
-      rows = read_csv( get_csv_path( category ) );
-      output.puts Playlist.new( rows, index, category  ).json;
-      #For each playlist object, make sure it is seperated by an ","
-      output.puts "," unless ( index == (Feed::Config.categories.size - 1)  )
-    end
-    #Ending JSON Array
-    output.puts %Q{ ] }
-    
-    puts "\nPublished to playlist_builder/output/json/"
-    puts "!!! Don't forget to validate http://jsonlint.com "
-  end
-  
-  #CSV File Path + Reader Stuff
-  def get_csv_path(category)
-    Feed::Config.output_dir_csv + category + ".csv"
-  end  
-
-  def read_csv( file )
-    rows = Array.new
-    Excelsior::Reader.rows( File.open( file , 'r') ) do |row|
-      rows << row
-    end
-    return rows
-  end
-
+  def initialize
+		@playlist_categories = ["dining", "driving", "exercising", "resting", "studying", "traveling"]
+		
+		@playlist_categories.each_with_index do |category, index|
+			input_file  = App::Config.dir.join("csv", %Q{#{category}.csv} )
+			
+			playlist = parse(input_file)
+			
+			#TODO
+			# Create a Playlist Object
+			# Create a Soundsnip Object
+			# Create a Track Object
+			
+			file_name = create_json_filename(category)
+			
+			save(file_name, playlist)
+		end
+  end	
+	
+	def parse(file)
+    util = ExcelsiorUtil.new(file)
+		rows = util.parse
+		clean_rows = rows.reject { |row| row[:file_name].nil? }
+	end
+	
+	def create_json_filename(category)
+		%Q{playlist-#{category}-#{Date.today.to_s}.json}
+	end
+	
+	def save(file_name, array)
+    begin
+			#Make the JSON look very pretty 
+			json_neat = JSON.neat_generate(array)
+			
+			#Write to file
+			output_file = App::Config.dir.join("json", file_name)
+			File.open(output_file, 'w') { |file| file.write(json_neat) }
+			
+    rescue Exception => e
+			puts %Q{Error: #{e}}
+    end	
+	end
 end

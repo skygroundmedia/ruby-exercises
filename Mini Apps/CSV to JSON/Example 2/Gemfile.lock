@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    neatjson (0.8.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  neatjson
+
+BUNDLED WITH
+   1.12.5
