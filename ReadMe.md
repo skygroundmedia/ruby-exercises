@@ -4,8 +4,11 @@ Ruby Exercises
 These are a few ruby scripts and exercises I use to refresh my memory.  There's no particular order but they do cover the basics of ruby, ruby gems, web services, web servers, classes, mix-ins and modules. 
 
 
-Ruby Basics
-- 
+---
+
+
+# Ruby Basics
+
 See the basics of ruby and how to do simple things like:
 
 - Loops
@@ -18,8 +21,11 @@ See the basics of ruby and how to do simple things like:
 - Collect
 
 
-Ruby App
--
+---
+
+
+# Ruby App
+
 
 You will see an example of how to build an app using:
 
@@ -28,8 +34,10 @@ You will see an example of how to build an app using:
 - Modules
 
 
-Web Related
--
+---
+
+
+# Web Related
 
 These examples are aimed at figuring out how to connect to the Internet to connect using:
 
@@ -40,8 +48,12 @@ These examples are aimed at figuring out how to connect to the Internet to conne
 - Web Server
 
 
-Utilities
--
+---
+
+
+
+# Utilities
+
 
 A few utility functions aimed at solving:
 
