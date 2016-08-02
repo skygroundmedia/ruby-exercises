@@ -64,8 +64,10 @@ class App
 	end
 end
 
-csv  = "App Background Photos.csv"
-json = "credits_" + Date.today.to_s + ".json"
+csv  = "App Background Photos 2.csv"
+json = %Q{credits_#{Date.today.to_s}_2.json}
+
+
 app  = App.new(csv, json)
 results = app.parse
 app.save(results)
