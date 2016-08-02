@@ -26,20 +26,25 @@ class Reporting
 	
 	#Spell out the Key / Value pairs
 	def publish_data(data)
-		puts %Q{\n\nMethod #1 ––––––––––––––––––––––––––\n\n}
+		
+		puts %Q{ Method #1 ––––––––––––––––––––––––––\n\n}
 		data.each_pair { |key,value| puts %Q{ #{key}: #{value.count} }}
 		
 		
-		puts %Q{\n\nMethod #2 –Sorted–––––––––––––––––––\n\n}
 		
+		
+		puts %Q{ Method #2 –Sorted–––––––––––––––––––\n\n}
 		#Transform data
 		count_by_timezone = data.map do |timezone,download|
 													[timezone, download.size]
 												end.sort_by(&:last).reverse
 		
+		
+		
 		#Sort the data
 		#count_by_timezone = sort_by_longhand(count_by_timezone)
 		count_by_timezone = sort_by_shorthand(count_by_timezone, :last).reverse
+		
 		
 		#Present Data
 		count_by_timezone.map do |pair|
