@@ -6,6 +6,7 @@
 
 require 'csv'
 require 'active_support/JSON'
+require 'active_support/core_ext/object/blank'
 require 'neatjson'
 require 'pathname'
 
@@ -41,8 +42,19 @@ class App
 		#Map the CSV rows to Credit objects so that they have context
 		credits = rows.map { |row| Credit.new(row) }
 		
+		#Organize the names by first name
+		credits.sort_by!(&:author)
+		
 		#Group all the photos from the same author
 		group_by_author = credits.group_by { |credit| credit.author }
+
+		#Only collect the credits
+		array = []
+		group_by_author.each do |author, credit|
+			array << credit
+		end
+		
+		array
 	end
 
 	def save(array)
@@ -71,10 +83,9 @@ def init(csv, json)
 end
 
 csv  = "App Background Photos.csv"
-json = %Q{credits_#{Date.today.to_s}_1.json}
+json = %Q{credits_#{Date.today.to_s}_1.js}
 init(csv, json)
 
 csv  = "App Background Photos 2.csv"
-json = %Q{credits_#{Date.today.to_s}_2.json}
+json = %Q{credits_#{Date.today.to_s}_2.js}
 init(csv, json)
-

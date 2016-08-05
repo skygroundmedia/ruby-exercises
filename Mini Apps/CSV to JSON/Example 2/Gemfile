@@ -1,4 +1,2 @@
 source 'https://rubygems.org'
-
-gem 'active_support/JSON'
 gem 'neatjson'
