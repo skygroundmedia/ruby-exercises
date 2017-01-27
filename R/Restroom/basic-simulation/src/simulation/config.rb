@@ -1,13 +1,12 @@
 # ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 # Config
 #
-require 'singleton'
 require 'fileutils'
+require 'singleton'
 
 class Config
+  
   include Singleton
-
-  APP_ROOT = File.dirname(__FILE__)  
 
   # Directories
   attr_reader :input_dir, :output_dir
@@ -18,6 +17,7 @@ class Config
     @output_dir = File.join(APP_ROOT, 'bin')
     
     @r_path     = File.join(@input_dir, "analysis", "monte_carlo.R")
+    
     @csv_path   = File.join(@output_dir, "simulation.csv")
     @out_path   = File.join(@output_dir, "simulation.out")
   end

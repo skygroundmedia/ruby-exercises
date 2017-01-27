@@ -3,6 +3,7 @@
 #
 # http://www.stuartellis.name/articles/rake/#using-environment-variables
 #
+APP_ROOT = File.dirname(__FILE__)  
 
 require 'rake'
 require 'rake/clean'
@@ -23,7 +24,6 @@ namespace :monte_carlo do
   # Tell Task that we're using these paths as directories
   directory Config.instance.input_dir  
   directory Config.instance.output_dir
-
 
   desc "A. Run in Sequence."
   task :main => [:reset, :run_simulation, :create_file, :process_data] do
@@ -99,6 +99,7 @@ namespace :monte_carlo do
   desc 'E. Process the CSV data using R'
   task :process_data do
     path = FileList[Config.instance.csv_path].pathmap('%f')[0]
+
     sh %{ R CMD BATCH --no-save --no-restore #{Config.instance.r_path} #{Config.instance.out_path} & }
     puts "Processing Data Complete"
   end  

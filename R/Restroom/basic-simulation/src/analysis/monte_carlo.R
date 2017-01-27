@@ -22,7 +22,6 @@ median <- apply(data,2,median)
 max    <- apply(data,2,max)
 df     <- data.frame(population=seq(from=10,to=600,by=10),mean=mean,median=median,max=max)
 
-
 # ## ## ## ## ## ## ## ## ## ## ##
 # Draw the chart
 #
