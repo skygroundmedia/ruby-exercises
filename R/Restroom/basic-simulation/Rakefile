@@ -1,35 +1,52 @@
-APP_ROOT = File.dirname(__FILE__)
+# ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+# Office Restroom Simulation
+#
+# http://www.stuartellis.name/articles/rake/#using-environment-variables
+#
 
 require 'rake'
 require 'rake/clean'
 require 'pry'
 require 'csv'
 require 'fileutils'
+require 'singleton'
+
+# App Specific Code
+require_relative 'src/simulation/restroom'
+require_relative 'src/simulation/person'
+require_relative 'src/simulation/facility'
 
 task default: 'monte_carlo:main'
 
-$:.unshift(File.join(APP_ROOT, 'src', 'restroom'))
-require 'restroom'
-require 'person'
-require 'facility'
+# Defaults
+class Config
+  include Singleton
+
+  APP_ROOT = File.dirname(__FILE__)  
+
+  # Directories
+  attr_reader :input_dir, :output_dir
+  # File Paths
+	attr_reader :r_path, :csv_path, :out_path
+  def initialize
+    @input_dir  = File.join(APP_ROOT, 'src', 'restroom')
+    @output_dir = File.join(APP_ROOT, 'bin', 'restroom')
+    
+    @r_path     = File.join(@input_dir, "monte_carlo.R")
+    @csv_path   = File.join(@output_dir, "simulation.csv")
+    @out_path   = File.join(@output_dir, "simulation.out")
+  end
+end
 
 
-# http://www.stuartellis.name/articles/rake/#using-environment-variables
 namespace :monte_carlo do  
+  # Tell Task that we're using these paths as directories
+  directory Config.instance.input_dir  
+  directory Config.instance.output_dir
 
-  input_dir = File.join(APP_ROOT, 'src', 'restroom')
-  directory input_dir
-  
-  output_dir = File.join(APP_ROOT, 'bin', 'restroom')
-  directory output_dir
-  
-  # THis is where the main source files are located
-  @r_path   = File.join(input_dir, "monte_carlo.R")
-  @csv_path = File.join(output_dir, "simulation.csv")
-  @out_path = File.join(output_dir, "simulation.out")
 
   desc 'Create a Monte Carlo Simulation to find out if 1 restroom is OK for 70 people.'
-  task :run_simulation do
+  task :run_simulation do    
     puts "Simulation Start"
     @population_range = 10..600
     @data             = {}
@@ -64,12 +81,13 @@ namespace :monte_carlo do
     puts "Simulation End"
   end
 
+
   desc 'Create a CSV file using Ruby'
-  file :create_file => [output_dir] do |t, args|    
+  file :create_file => [Config.instance.output_dir] do |t, args|    
     # Example of how to print data into a CSV file
     # sh %{ echo #{Date.today.to_s} > "#{output_dir}/simulation.csv" }
     puts "CSV Export Start"
-    CSV.open(@csv_path, 'w') do |csv|
+    CSV.open(Config.instance.csv_path, 'w') do |csv|
       # Columns
       lbl = []
       @population_range.step(10).each { |population_size| lbl << population_size }
@@ -84,17 +102,21 @@ namespace :monte_carlo do
     puts "CSV Export End"
   end
 
+
   desc 'Process the data using R'
   task :process_data do
-    path = FileList[@csv_path].pathmap('%f')[0]
-    sh %{ R CMD BATCH --no-save --no-restore #{@r_path} #{@out_path} & }
+    path = FileList[Config.instance.csv_path].pathmap('%f')[0]
+    sh %{ R CMD BATCH --no-save --no-restore #{Config.instance.r_path} #{Config.instance.out_path} & }
     puts "Processing Data Complete"
   end
+
   
+  desc 'Delete Old Data'
   task :reset do
-    FileUtils.rm(@out_path) if File.exist?(@out_path)
+    FileUtils.rm(Config.instance.out_path) if File.exist?(Config.instance.out_path)
     puts "Reset Complete"
   end
+
 
   desc "Run Sequentially"
   task :main => [:reset, :run_simulation, :create_file, :process_data] do
