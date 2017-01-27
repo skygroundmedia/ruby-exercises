@@ -1,0 +1,19 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    area (0.10.0)
+      fastercsv (~> 1.5)
+    creditcard (1.0)
+    ezcrypto (0.7.2)
+    fastercsv (1.5.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  area
+  creditcard
+  ezcrypto
+
+BUNDLED WITH
+   1.13.6
