@@ -1,0 +1,89 @@
+APP_ROOT = File.dirname(__FILE__)
+
+require 'rake'
+require 'rake/clean'
+require 'pry'
+require 'csv'
+require 'fileutils'
+
+task default: 'example:main'
+
+# ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+# Title: 
+#   Basic Example
+# Description: 
+#   This example simply shows you how to load a 
+#   rake file and pass arguments using ENV['variables']
+# Execute:
+#   rake basic:main
+#
+namespace :simple do
+  desc 'Run a rake task and pass an argument using ENV["variables"]'
+  task :main do
+    input  = "my_input_path.R"
+    output = "my_output_path.out"
+    sh %{ rake basic:arguments INPUT_PATH=#{input} OUTPUT_PATH=#{output} }
+  end
+  
+  desc 'If ENV is nil, then use the default file paths.'
+  task :arguments do
+    input = ENV['INPUT_PATH'] || 'default_input_path.R'
+    output = ENV['OUTPUT_PATH'] || 'default_output_path.out'
+    puts input, output
+  end  
+end
+
+# ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+# Title: 
+#   Various R examples
+# Description: 
+#   A suite of simple examples showing how to use R
+#   http://www.virtuouscode.com/2014/04/23/rake-part-3-rules/
+#   Take note of the use of 'directory', 'rule', and 'file'
+# Execute:
+#  rake example:main
+#
+
+namespace :example do
+  input_dir  = File.join(APP_ROOT, 'src', 'examples')
+  directory input_dir
+ 
+  output_dir = File.join(APP_ROOT, 'bin', 'examples') 
+  directory output_dir
+  
+  SOURCE_FILES = Rake::FileList.new("**/*.R") do |files|
+    files.exclude("~*")
+    # Ignore the files in the folders that start with the word...
+    files.exclude(/simulations/)
+    # Ignore any Ruby files
+    files.exclude("*.rb")
+    # Ignore the files with 0 filesize
+    files.exclude do |file|
+      File.zero?(file)
+    end
+  end
+
+  # Replace .R dependency in a rule with a lambda
+  def source_for_file(file)
+    SOURCE_FILES.detect{|f| f.ext('') == file.ext('')}
+  end
+
+  desc 'List files within src/examples and create bin/examples'
+  task :main => SOURCE_FILES.ext(".out")
+  rule ".out" => ->(f){source_for_file(f)} do |t|
+    # Get the raw name with .ext
+    input  = FileList[t.source].pathmap('%f')[0]
+    # Combine dir + name
+    input  = File.join(input_dir, input)
+    # Get the raw name with .ext
+    output = FileList[t.name].pathmap('%f')[0]
+    # Create a directory if needed
+    Dir.mkdir(output_dir) unless File.exists?(output_dir)
+    output = File.join(output_dir, output)
+    # Create a file 
+    FileUtils.touch(output)
+    #binding.pry
+    # Begin R data processing
+    sh %{ R CMD BATCH --no-save --no-restore #{input} #{output} & }
+  end 
+end

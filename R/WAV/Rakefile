@@ -1,0 +1,51 @@
+APP_ROOT = File.dirname(__FILE__)
+
+require 'rake'
+require 'rake/clean'
+require 'pry'
+require 'csv'
+require 'fileutils'
+
+task default: 'sound:create_file'
+
+# ## ## ## ## ## ## ## ## ## ## ##
+# Wav file measurement
+#
+namespace :sound do
+  
+  input_dir = File.join(APP_ROOT, 'src', 'simulations', 'sound')
+  directory input_dir
+  
+  output_dir = File.join(APP_ROOT, 'bin', 'simulations', 'sound')
+  directory output_dir
+  
+  desc 'Create a CSV file using Ruby'
+  file :create_file => [output_dir] do |t, args|    
+    # Example of how to print data into a CSV file
+    # sh %{ echo #{Date.today.to_s} > "#{output_dir}/simulation.csv" }
+    puts "CSV Export Start"
+    CSV.open('heartbeat.csv', 'w') do |csv|
+      csv << %w(time ch1 ch2 combined)
+      File.open('heartbeat.wav') do |file|
+        file.seek(8)
+        if file.read(4) == "WAVE"
+          file.seek(36)
+          if file.read(4) == 'data'
+            file.seek(4, IO::SEEK_CUR) n= 1
+            while !file.eof?
+              ch1, ch2 = file.read(4).unpack('ss')
+              csv << [n, ch1, ch2, ch1.to_i+ch2.to_i]
+              n += 1
+            end 
+          end
+        end 
+      end
+    end
+    puts "CSV Export End"
+  end
+  
+  desc "Run Sequentially"
+  task :now => [:create_file] do
+    puts "All Done!"
+  end      
+end
