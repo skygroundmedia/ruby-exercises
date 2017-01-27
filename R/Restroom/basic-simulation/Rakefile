@@ -8,7 +8,7 @@ require 'fileutils'
 
 task default: 'monte_carlo:main'
 
-$:.unshift(File.join(APP_ROOT, 'src', 'simulations', 'restroom'))
+$:.unshift(File.join(APP_ROOT, 'src', 'restroom'))
 require 'restroom'
 require 'person'
 require 'facility'
@@ -17,10 +17,10 @@ require 'facility'
 # http://www.stuartellis.name/articles/rake/#using-environment-variables
 namespace :monte_carlo do  
 
-  input_dir = File.join(APP_ROOT, 'src', 'simulations', 'restroom')
+  input_dir = File.join(APP_ROOT, 'src', 'restroom')
   directory input_dir
   
-  output_dir = File.join(APP_ROOT, 'bin', 'simulations', 'restroom')
+  output_dir = File.join(APP_ROOT, 'bin', 'restroom')
   directory output_dir
   
   # THis is where the main source files are located

@@ -32,7 +32,6 @@ class Reporting
   def group_data(arr)
     list = arr.inject(Hash.new(0)) { |h, e| h[e] += 1 ; h }
     puts list.sort_by {|_key, value| value}.reverse.to_h
-
   end  
 	
 	#Spell out the Key / Value pairs

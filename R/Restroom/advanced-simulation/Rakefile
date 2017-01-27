@@ -1,0 +1,131 @@
+# http://www.stuartellis.name/articles/rake/#using-environment-variables
+
+APP_ROOT = File.dirname(__FILE__)
+
+require 'rake'
+require 'rake/clean'
+require 'pry'
+require 'csv'
+require 'fileutils'
+
+
+task default: 'monte_carlo:main'
+
+# App Specific Classes
+require_relative 'src/restroom'
+require_relative 'src/person'
+require_relative 'src/facility'
+
+# ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+# Why Rake? 
+# 
+# We use Rake over a Simulation.rb because we want to use "directory" and "file"
+#
+
+namespace :monte_carlo do  
+
+  input_dir = File.join(APP_ROOT, 'src', 'restroom')
+  directory input_dir
+  
+  output_dir = File.join(APP_ROOT, 'bin', 'restroom')
+  directory output_dir
+  
+  # THis is where the main source files are located
+  @r_path   = File.join(input_dir, "monte_carlo.R")
+  @csv_path = File.join(output_dir, "simulation.csv")
+  @out_path = File.join(output_dir, "simulation.out")
+
+
+  desc 'Create a Monte Carlo Simulation to find out if 1 restroom is OK for 70 people.'
+  task :run_simulation do
+    puts ":run_simulation starts."
+    
+    @data = {}
+    @population_range       = 10...600
+    # Avg number of times a male office worker might use the restroom
+    max_frequency           = 5
+    # The amount of time a male office worker might spend in the restoom (mins)
+    max_use_duration        = 1
+    # Max Restrooms
+    max_num_of_restrooms    = 1..4
+    # Number of stalls in the restroom
+    facilities_per_restroom = 3
+    
+    max_num_of_restrooms.each do |num_of_restrooms|
+      data = {}
+      population_range.step(10).each do |population_size|
+
+        Person.population.clear
+        
+        population_size.times { Person.population << Person.new(rand(max_frequency)+1, rand(max_use_duration)+1) }
+        data[population_size] = []
+        restrooms = []
+        
+        num_of_restrooms.times { restrooms << Restroom.new(facilities_per_restroom) }
+
+        Person::DURATION.times do |t|
+          data[population_size] << restrooms.inject(0) {|n,m| n + m.queue.size }
+          restrooms.each {|restroom|
+            queue = restroom.queue.clone
+            restroom.queue.clear
+            unless queue.empty?
+              restroom.enter queue.shift
+            end 
+          }
+          
+          Person.population.each do |person|
+            person.frequency = (t > 270 and t < 390) ? 12 : rand(max_frequency)+1
+            if person.need_to_go?
+              restroom = restrooms.min { |a,b| a.queue.size <=> b.queue.size }
+              restroom.enter person
+            end
+          end
+          restrooms.each {|restroom| restroom.tick }
+        end
+      end
+
+    puts ":run_simulation ends."
+  end
+
+
+  desc 'Create a CSV file using Ruby'
+  file :create_file => [output_dir] do |t, args|    
+    # Example of how to print data into a CSV file
+    # sh %{ echo #{Date.today.to_s} > "#{output_dir}/simulation.csv" }
+    puts ":create_file starts."    
+    CSV.open(@csv_path, 'w') do |csv|
+      # Columns
+      lbl = []
+      @population_range.step(10).each { |population_size| lbl << population_size }
+      csv << lbl      
+      # Rows
+      Person::DURATION.times do |t|
+        row = []
+        @population_range.step(10).each { |population_size| row << @data[population_size][t] }
+        csv << row
+      end
+    end
+    puts ":create_file ends."
+  end
+
+
+  desc 'Process the data using R'
+  task :process_data do
+    path = FileList[@csv_path].pathmap('%f')[0]
+    sh %{ R CMD BATCH --no-save --no-restore #{@r_path} #{@out_path} & }
+    puts ":process data complete."
+  end
+
+
+  desc 'Delete old files'
+  task :reset do
+    FileUtils.rm(@out_path) if File.exist?(@out_path)
+    puts ":reset complete."
+  end
+
+
+  desc "Run Sequentially"
+  task :main => [:reset, :run_simulation, :create_file, :process_data] do
+    puts ":main complete."
+  end    
+end
