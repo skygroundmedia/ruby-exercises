@@ -7,7 +7,7 @@ args <- (commandArgs(trailingOnly=TRUE))
 
 if(length(args) == 0){
   print("No arguments supplied.")
-  path = file.path("bin", "restroom", "simulation.csv")
+  path = file.path("bin", "simulation.csv")
 } else {
   for(i in 1:length(args)){
     eval(parse(text=args[[i]]))
