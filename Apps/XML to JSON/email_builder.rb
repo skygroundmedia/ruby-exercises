@@ -31,7 +31,7 @@ class EmailUtil
           last_name:    ['', last_name].sample,
           zip_code:     ['', Faker::Address.zip_code].sample,
           gender:       ["m", "f", "o"].sample,
-          dob:          Faker::Date.between(Date.parse("1st Jan 1920"), Date.parse("1st Jan #{min_age_requirement}")),
+          dob:          Faker::Date.between(from: Date.parse("1st Jan 1920"), to: Date.parse("1st Jan #{min_age_requirement}")),
           phone_mobile: ['', Faker::PhoneNumber.cell_phone].sample,
           phone_other:  ['', Faker::PhoneNumber.phone_number].sample
           )
